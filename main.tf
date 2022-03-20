@@ -38,11 +38,19 @@ data "template_file" "wg_client_data_json" {
   }
 }
 
+data "aws_ec2_instance_type" "wg_server_instance_type" {
+  instance_type = var.instance_type
+}
+
+locals {
+  instance_arch = [for arch in data.aws_ec2_instance_type.wg_server_instance_type.supported_architectures : arch if arch == "x86_64" || arch == "arm64"][0]
+}
+
 data "aws_ami" "ubuntu" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-${local.instance_arch == "arm64" ? "arm64" : "amd64"}-server-*"]
   }
   filter {
     name   = "virtualization-type"
@@ -67,7 +75,10 @@ resource "aws_launch_configuration" "wireguard_launch_config" {
     eip_id                             = var.use_eip ? aws_eip.wireguard[0].id : "",
     use_ssm                            = var.use_ssm ? "true" : "false",
     use_prometheus                     = var.use_prometheus ? "true" : "false",
-    wg_server_interface                = var.wg_server_interface
+    wg_server_interface                = var.wg_server_interface,
+    awscli_arch                        = local.instance_arch == "arm64" ? "aarch64" : "x86_64"
+    wg_prom_exporter_arch              = local.instance_arch == "arm64" ? "aarch64" : "x86_64"
+    node_exporter_arch                 = local.instance_arch == "arm64" ? "arm64" : "amd64"
   })
   security_groups             = [aws_security_group.sg_wireguard.id]
   associate_public_ip_address = var.use_eip
@@ -118,7 +129,7 @@ resource "aws_autoscaling_group" "wireguard_asg" {
 
 resource "aws_ssm_parameter" "wireguard_server_private_key" {
   count       = var.use_ssm ? 1 : 0
-  name        = "/wireguard/wg-server-private-key"
+  name        = "/${var.env}/wireguard/wg-server-private-key"
   description = "WireGuard Server private key"
   type        = "SecureString"
   value       = var.wg_server_private_key

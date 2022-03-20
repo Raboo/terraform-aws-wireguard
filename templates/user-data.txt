@@ -16,7 +16,7 @@ apt-get install -y \
   wireguard-tools && \
   rm -rf /var/lib/apt/lists/*
 
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && \
+curl "https://awscli.amazonaws.com/awscli-exe-linux-${awscli_arch}.zip" -o "awscliv2.zip" && \
 unzip awscliv2.zip && \
 rm -f awscliv2.zip && \
 ./aws/install
@@ -60,7 +60,7 @@ fi
 if [[ "${use_ssm}" == "true" ]] && [[ ! -z "${wg_server_private_key_aws_ssm_name}" ]]; then
   export REGION=$(curl -fsq http://169.254.169.254/latest/meta-data/placement/availability-zone | sed 's/[a-z]$//')
   export AWS_SSM_PARAMETER=$(aws ssm get-parameter --name "${wg_server_private_key_aws_ssm_name}" --with-decryption --region $${REGION} | jq -r .Parameter.Value)
-  sed -i "s/AWS_SSM_PARAMETER/$AWS_SSM_PARAMETER/g" /etc/wireguard/wg0.conf
+  sed -i "s*AWS_SSM_PARAMETER*$AWS_SSM_PARAMETER*g" /etc/wireguard/wg0.conf
 fi
 
 chown -R root:root /etc/wireguard/
@@ -76,10 +76,8 @@ done
 
 if [[ "${use_prometheus}" == "true" ]]; then
   # Install prometheus_wireguard_exporter
-  wget https://github.com/vainkop/terraform-aws-wireguard/releases/download/v1.3.0/prometheus_wireguard_exporter_v3.4.2.tar.gz && \
-  tar -zxvf prometheus_wireguard_exporter_v3.4.2.tar.gz prometheus_wireguard_exporter && \
-  rm -fv prometheus_wireguard_exporter_v3.4.2.tar.gz && \
-  mv prometheus_wireguard_exporter /usr/local/bin/prometheus_wireguard_exporter && \
+  wget https://github.com/jonasohland/terraform-aws-wireguard/releases/download/v1.3.0/prometheus_wireguard_exporter_3.6.2_${wg_prom_exporter_arch}-unknown-linux-gnu && \
+  mv prometheus_wireguard_exporter_3.6.2_${wg_prom_exporter_arch}-unknown-linux-gnu /usr/local/bin/prometheus_wireguard_exporter && \
   chmod +x /usr/local/bin/prometheus_wireguard_exporter
 
   cat <<EOF | tee /etc/systemd/system/prometheus_wireguard_exporter.service
@@ -92,7 +90,7 @@ After=network-online.target
 User=root
 Group=root
 Type=simple
-ExecStart=/usr/local/bin/prometheus_wireguard_exporter -a -n /etc/wireguard/wg0.conf -p 9586
+ExecStart=/usr/local/bin/prometheus_wireguard_exporter -a true -n /etc/wireguard/wg0.conf -p 9586
 
 [Install]
 WantedBy=multi-user.target
@@ -109,10 +107,10 @@ EOF
 
   # Install node_exporter
   useradd -rs /bin/false node_exporter && \
-  wget https://github.com/prometheus/node_exporter/releases/download/v1.1.2/node_exporter-1.1.2.linux-amd64.tar.gz && \
-  tar -zxvf node_exporter-1.1.2.linux-amd64.tar.gz node_exporter-1.1.2.linux-amd64/node_exporter && \
-  rm -fv node_exporter-1.1.2.linux-amd64.tar.gz && \
-  mv node_exporter-1.1.2.linux-amd64/node_exporter /usr/local/bin/node_exporter && \
+  wget https://github.com/prometheus/node_exporter/releases/download/v1.1.2/node_exporter-1.1.2.linux-${node_exporter_arch}.tar.gz && \
+  tar -zxvf node_exporter-1.1.2.linux-${node_exporter_arch}.tar.gz node_exporter-1.1.2.linux-${node_exporter_arch}/node_exporter && \
+  rm -fv node_exporter-1.1.2.linux-${node_exporter_arch}.tar.gz && \
+  mv node_exporter-1.1.2.linux-${node_exporter_arch}/node_exporter /usr/local/bin/node_exporter && \
   chmod +x /usr/local/bin/node_exporter && \
   chown node_exporter:node_exporter /usr/local/bin/node_exporter
 

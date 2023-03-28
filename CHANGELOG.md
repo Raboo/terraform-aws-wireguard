@@ -4,7 +4,35 @@ All notable changes to this project will be documented in this file.
 
 ## unreleased
 
-- Variable `ubuntu_release` added.
+### Added
+
+- Variable `ubuntu_release` added and bump default ubuntu release.
+- Make prometheus optional and omit all related resources and packages installed via the user data script.
+- arm64 instances support.
+
+### Changed
+
+- Remove explicit provider region as variable and use inherited provider
+- Don't create eip if var.use_eip = false.
+- Use empty string for template file variables for interpolation
+- remove backend configuration.
+- Update provide version.
+- Cleanup tags
+
+## [1.3.0] - 2021-03-23
+
+### Added
+
+- Add SSM parameter creation by Terraform
+- Add aws ssm get-parameter for Wireguard server private key
+- Add EIP creation
+- Add route53 creation
+- Add route geolocation
+
+### Changed
+
+- Update README
+- Update example
 
 ## [1.2.0] - 2021-03-12
 

@@ -6,6 +6,12 @@ variable "ssh_key_id" {
   description = "A SSH public key ID to add to the VPN instance."
 }
 
+variable "ubuntu_release" {
+  type        = string
+  default     = "jammy-22.04"
+  description = "Ubuntu release in the format "${CODENAME}-${VERSION}" to use for the VPN instance."
+}
+
 variable "instance_type" {
   default     = "t2.micro"
   description = "The machine type to launch, some machines may offer higher throughput for higher use cases."

@@ -1,5 +1,10 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
+
+## unreleased
+
+- Variable `ubuntu_release` added.
 
 ## [1.2.0] - 2021-03-12
 

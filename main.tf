@@ -50,7 +50,7 @@ data "aws_ami" "ubuntu" {
   most_recent = true
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-${local.instance_arch == "arm64" ? "arm64" : "amd64"}-server-*"]
+    values = ["ubuntu/images/hvm-ssd/ubuntu-"${var.ubuntu_release}"-${local.instance_arch == "arm64" ? "arm64" : "amd64"}-server-*"]
   }
   filter {
     name   = "virtualization-type"

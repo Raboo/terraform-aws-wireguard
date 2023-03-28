@@ -41,6 +41,7 @@ Before using this module, you'll need to generate a key pair for your server and
 |`route53_record_name`|`string`|Optional - if `use_route53` is not used.|Route53 Record Name for Wireguard server.|
 |`use_prometheus`|`bool`|Optional - defaults to `false`.|Install and use the promethus node exporting tools.|
 |`prometheus_server_ip`|`string`|Optional - defaults to `0.0.0.0/0`.|The CIDR block of the prometheus server.|
+|`ubuntu_release`|`string`|Optional - defaults to `jammy-22.04`.|Ubuntu release in the format "${CODENAME}-${VERSION}" to use for the VPN instance.|
 
 If the `wg_server_private_key` contains certain characters like slashes & etc then it needs additional pre-processing before entering it into `values.yaml`. Example:
 ```

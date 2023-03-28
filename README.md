@@ -4,7 +4,14 @@ A Terraform module to deploy a WireGuard VPN server on AWS. It can also be used 
 
 The module is "Terragrunt ready" & supports multi region deployment & values in yaml format. Please see example here: [example/](example/)
 
+## Fork notes
+
+This is a fork that merges <https://github.com/jonasohland/terraform-aws-wireguard> and different commits/pull requests from <https://github.com/MarcMeszaros/terraform-aws-wireguard>.
+
+I also added the option to make the Ubuntu release configurable so it doesn't require code changes when they have a new release.
+
 ## Prerequisites
+
 Before using this module, you'll need to generate a key pair for your server and client, which cloud-init will source and add to WireGuard's configuration.
 
 - Install the WireGuard tools for your OS: https://www.wireguard.com/install/
@@ -15,6 +22,7 @@ Before using this module, you'll need to generate a key pair for your server and
 - Add each client's public key, along with the next available IP address to the wg_clients list. See Usage for details.
 
 ## Variables
+
 | Variable Name | Type | Required |Description |
 |---------------|-------------|-------------|-------------|
 |`subnet_ids`|`list`|Yes|A list of subnets for the Autoscaling Group to use for launching instances. May be a single subnet, but it must be an element in a list.|
@@ -44,7 +52,8 @@ Before using this module, you'll need to generate a key pair for your server and
 |`ubuntu_release`|`string`|Optional - defaults to `jammy-22.04`.|Ubuntu release in the format "${CODENAME}-${VERSION}" to use for the VPN instance.|
 
 If the `wg_server_private_key` contains certain characters like slashes & etc then it needs additional pre-processing before entering it into `values.yaml`. Example:
-```
+
+```bash
 export ESCAPED_WG_SERVER_PRIVATE_KEY=$(printf '%s\n' "$WG_SERVER_PRIVATE_KEY" | sed -e 's/[\/&]/\\&/g')
 sed -i "s/WG_SERVER_PRIVATE_KEY/$ESCAPED_WG_SERVER_PRIVATE_KEY/g" values.yaml
 ```
